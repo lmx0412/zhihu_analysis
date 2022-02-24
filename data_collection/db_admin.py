@@ -75,7 +75,7 @@ class HotList_DB_Admin():
             return False
         else:
             session.commit()
-            log.debug("update record [%s] success" % data)
+            # log.debug("update record [%s] success" % data)
         finally:
             session.close()
 
