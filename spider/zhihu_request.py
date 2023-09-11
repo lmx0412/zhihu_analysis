@@ -26,23 +26,32 @@ class Zhihu_Client():
     }
 
     def request_hot_list(self):
-        res = requests.get(self.hot_list_url, headers=self.headers)
-        data = res.json()["data"]
-        hot_list_result = []
-        for item in data:
             try:
-                hot_list_data = Hot_List_Data()
-                hot_list_data.title = item["target"]["title"]
-                hot_list_data.heat = int(item["detail_text"].replace(" ", "").split("万热度")[0])
-                hot_list_data.answer_count = item["target"]["answer_count"]
-                hot_list_data.question_id = item['target']['url'].split("questions/")[-1]
-                hot_list_data.create_time = item['target']['created']
-                hot_list_result.append(hot_list_data)
+                res = requests.get(self.hot_list_url, headers=self.headers)
+                data = res.json()["data"]
             except Exception as e:
-                log.error("assemble data error")
-                log.exception(e)
-        # log.debug(hot_list_result)
-        self.save_data(hot_list_result)
+                log.error(e)
+                log.error("request failed")
+                return
+
+            hot_list_result = []
+            for item in data:
+                try:
+                    hot_list_data = Hot_List_Data()
+                    hot_list_data.title = item["target"]["title"]
+                    if not "热度" in item["detail_text"]:
+                        hot_list_data.heat = int(round(float(item["detail_text"].replace(" ", "").split("万热度")[0])))
+                    else:
+                        hot_list_data.heat = 0
+                    hot_list_data.answer_count = item["target"]["answer_count"]
+                    hot_list_data.question_id = item['target']['url'].split("questions/")[-1]
+                    hot_list_data.create_time = item['target']['created']
+                    hot_list_result.append(hot_list_data)
+                except Exception as e:
+                    log.error("assemble data error")
+                    log.exception(e)
+            # log.debug(hot_list_result)
+            self.save_data(hot_list_result)
 
     def request_question(self, question_id):
         res = requests.get(self.question_url + str(question_id), headers=self.headers)
