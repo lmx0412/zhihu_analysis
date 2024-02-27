@@ -39,7 +39,7 @@ class Zhihu_Client():
                 try:
                     hot_list_data = Hot_List_Data()
                     hot_list_data.title = item["target"]["title"]
-                    if not "热度" in item["detail_text"]:
+                    if "热度" in item["detail_text"]:
                         hot_list_data.heat = int(round(float(item["detail_text"].replace(" ", "").split("万热度")[0])))
                     else:
                         hot_list_data.heat = 0
